@@ -205,20 +205,7 @@ int getIndex(vector<string> v, string K) {
     }
 }
 
-vector <string> months = {
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-};
+vector <string> months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
 string getMonth(int month_number) {
     if (month_number > months.size()) {
@@ -226,6 +213,57 @@ string getMonth(int month_number) {
     } else {
         return months[month_number - 1];
     }
+}
+
+string dataProcess(queue <ElectronicToolsDetails *> customers_order) {
+    vector<string> item_names;
+    vector<int> item_count;
+    vector<double> item_price;
+
+    while (!customers_order.empty()) {
+
+        if (count(item_names.begin(), item_names.end(), customers_order.front()->name)) {
+            int index = getIndex(item_names, customers_order.front()->name);
+            item_count[index] += 1;
+        } else {
+            item_names.push_back(customers_order.front()->name);
+            item_count.push_back(1);
+            item_price.push_back(customers_order.front()->price);
+        }
+
+        customers_order.pop();
+    }
+
+    double total_price = 0;
+    string report_by_item;
+
+    time_t now = time(0);
+
+    tm *ltm = localtime(&now);
+
+    string month = getMonth(1 + ltm->tm_mon);
+
+    report_by_item += "Month: " + month + "\n";
+
+    for (int i = 0; i < item_names.size(); i++) {
+        double total_price_by_item = item_price[i] * item_count[i];
+        total_price += total_price_by_item;
+
+        stringstream stream_total_price_by_item;
+        stream_total_price_by_item << fixed << setprecision(2) << total_price_by_item;
+        string str_total_price_by_item = stream_total_price_by_item.str();
+
+        report_by_item += "Product: " + item_names[i] + "\tQuantity: " + to_string(item_count[i]) +
+                          "\tTotal Price: " + str_total_price_by_item + "\n";
+    }
+
+    stringstream stream_total_price;
+    stream_total_price << fixed << setprecision(2) << total_price;
+    string str_total_price = stream_total_price.str();
+
+    report_by_item += "Total Price: " + str_total_price + "\n";
+
+    return report_by_item;
 }
 
 int main() {
@@ -237,9 +275,9 @@ int main() {
     stack<string> sales_report_copy;
 
     do {
-        cout << "Pick Action: " << endl;
-        cout << "1. Shop owner " << endl;
-        cout << "2. Customer " << endl;
+        cout << "Pick User Profile: " << endl;
+        cout << "1. Customer " << endl;
+        cout << "2. Shop owner " << endl;
         cout << "3. Exit" << endl;
         cout << "Action: ";
         cin >> n;
@@ -247,6 +285,75 @@ int main() {
         cout << endl;
 
         if (n == 1) {
+            int item_serial, action, counter = 0;
+            queue <ElectronicToolsDetails *> customers_order;
+
+            do {
+                list->display();
+
+                cout << endl;
+                cout << "Pick Action: " << endl;
+                cout << "1. Add Product to the cart " << endl;
+                cout << "2. Remove first Product" << endl;
+                cout << "3. Exit " << endl;
+                cout << "Action: ";
+
+                cin >> action;
+
+                if (action == 1) {
+                    do {
+                        cout << "Enter number of the item you'd like to buy (Enter -1 to exit): ";
+                        cin >> item_serial;
+
+                        if (item_serial == -1) {
+                            cout << endl;
+                            break;
+                        }
+
+                        ElectronicToolsDetails *required_item = list->search(item_serial);
+
+                        customers_order.push(required_item);
+
+                        cout << "Product Added" << endl;
+                        cout << endl;
+
+                        counter++;
+
+                    } while (item_serial != -1);
+
+                } else if (action == 2) {
+                    if (!customers_order.empty()) {
+                        customers_order.pop();
+                        cout << "First product removed" << endl;
+                        cout << endl;
+
+                    } else {
+                        cout << "No product in the cart" << endl;
+                        cout << endl;
+                    }
+
+                    counter--;
+
+                } else if (action == 3) {
+                    cout << endl;
+                    break;
+
+                } else {
+                    cout << "Wrong input" << endl;
+                    cout << endl;
+                }
+
+            } while (action != 3);
+
+            if (counter) {
+                string report_by_item = dataProcess(customers_order);
+
+                sales_report.push(report_by_item);
+
+                cout << report_by_item;
+            }
+
+        } else if (n == 2) {
             string username;
             string password;
 
@@ -334,7 +441,7 @@ int main() {
                         vector <string> monthly_reports;
 
                         while (!sales_report.empty()) {
-                            if (sales_report.top().find(months[month - 1])) {
+                            if (sales_report.top().find(months[month - 1]) == 7) {
                                 monthly_reports.push_back(sales_report.top());
                             }
 
@@ -368,121 +475,6 @@ int main() {
 
             } else {
                 cout << "Access denied" << endl;
-            }
-
-        } else if (n == 2) {
-
-            int item_serial, action, counter = 0;
-            queue <ElectronicToolsDetails *> customers_order;
-
-            do {
-                list->display();
-
-                cout << endl;
-                cout << "Pick Action: " << endl;
-                cout << "1. Add Product to the cart " << endl;
-                cout << "2. Remove first Product" << endl;
-                cout << "3. Exit " << endl;
-                cout << "Action: ";
-
-                cin >> action;
-
-                if (action == 1) {
-                    do {
-                        cout << "Enter number of the item you'd like to buy (Enter -1 to exit): ";
-                        cin >> item_serial;
-
-                        if (item_serial == -1) {
-                            cout << endl;
-                            break;
-                        }
-
-                        ElectronicToolsDetails *required_item = list->search(item_serial);
-
-                        customers_order.push(required_item);
-
-                        cout << "Product Added" << endl;
-                        cout << endl;
-
-                        counter++;
-
-                    } while (item_serial != -1);
-
-                } else if (action == 2) {
-                    if (!customers_order.empty()) {
-                        customers_order.pop();
-                        cout << "First product removed" << endl;
-                        cout << endl;
-
-                    } else {
-                        cout << "No product in the cart" << endl;
-                        cout << endl;
-                    }
-
-                    counter--;
-
-                } else if (action == 3) {
-                    cout << endl;
-                    break;
-
-                } else {
-                    cout << "Wrong input" << endl;
-                    cout << endl;
-                }
-
-            } while (action != 3);
-
-            if (counter) {
-                vector<string> item_names;
-                vector<int> item_count;
-                vector<double> item_price;
-
-                while (!customers_order.empty()) {
-
-                    if (count(item_names.begin(), item_names.end(), customers_order.front()->name)) {
-                        int index = getIndex(item_names, customers_order.front()->name);
-                        item_count[index] += 1;
-                    } else {
-                        item_names.push_back(customers_order.front()->name);
-                        item_count.push_back(1);
-                        item_price.push_back(customers_order.front()->price);
-                    }
-
-                    customers_order.pop();
-                }
-
-                double total_price = 0;
-                string report_by_item;
-
-                time_t now = time(0);
-
-                tm *ltm = localtime(&now);
-
-                string month = getMonth(1 + ltm->tm_mon);
-
-                report_by_item += "Month: " + month + "\n";
-
-                for (int i = 0; i < item_names.size(); i++) {
-                    double total_price_by_item = item_price[i] * item_count[i];
-                    total_price += total_price_by_item;
-
-                    stringstream stream_total_price_by_item;
-                    stream_total_price_by_item << fixed << setprecision(2) << total_price_by_item;
-                    string str_total_price_by_item = stream_total_price_by_item.str();
-
-                    report_by_item += "Product: " + item_names[i] + "\tQuantity: " + to_string(item_count[i]) +
-                                      "\tTotal Price: " + str_total_price_by_item + "\n";
-                }
-
-                stringstream stream_total_price;
-                stream_total_price << fixed << setprecision(2) << total_price;
-                string str_total_price = stream_total_price.str();
-
-                report_by_item += "Total Price: " + str_total_price + "\n";
-
-                sales_report.push(report_by_item);
-
-                cout << report_by_item;
             }
 
         } else if (n == 3) {
