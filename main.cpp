@@ -208,7 +208,7 @@ int getIndex(vector<string> v, string K) {
 vector <string> months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
 string getMonth(int month_number) {
-    if (month_number > months.size()) {
+    if (month_number > months.size() || month_number < 0) {
         return "No month";
     } else {
         return months[month_number - 1];
@@ -393,13 +393,13 @@ int main() {
                         cin >> price;
 
                         ElectronicToolsDetails *new_item = new ElectronicToolsDetails(
-                                product_name,
-                                list->last_serial,
-                                price
+                            product_name,
+                            list->last_serial,
+                            price
                         );
 
                         ElectronicToolsNode *new_node = new ElectronicToolsNode(
-                                &*new_item
+                            &*new_item
                         );
 
                         list->addItem(&*new_node);
