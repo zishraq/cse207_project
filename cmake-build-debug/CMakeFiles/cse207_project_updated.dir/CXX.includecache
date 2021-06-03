@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/Zubair/CLionProjects/cse207_project_updated/main.cpp
+iostream
+-
+vector
+-
+queue
+-
+stack
+-
+ctime
+-
+algorithm
+-
+iterator
+-
+string
+-
+utility
+-
+iomanip
+-
+
